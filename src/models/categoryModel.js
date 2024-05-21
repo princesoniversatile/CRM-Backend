@@ -17,10 +17,10 @@ const getAllCategories = async () => {
 };
 
 const getCategoryById = async (id) => {
-  const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
+  const result = await pool.query('SELECT * FROM categories WHERE id = $1 ', [id] );
   return result.rows[0];
 };
-
+//order by id ASC
 const createCategory = async (category) => {
   const { category_name, description } = category;
   const result = await pool.query(

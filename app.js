@@ -1,5 +1,7 @@
 const express = require('express');
 const categoryRoutes = require('./src/routes/categoryRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const productModel = require('./src/models/productModel');
 const categoryModel = require('./src/models/categoryModel');
 const pool = require('./src/config/db');
 const cors=require('cors')
@@ -12,10 +14,14 @@ app.use(cors())
 
 // Routes
 app.use('/', categoryRoutes);
+app.use('/', productRoutes);
 
 // Initialize the database table
 (async () => {
   await categoryModel.createCategoryTable();
+})();
+(async () => {
+  await productModel.createProductTable();
 })();
 
 (async () => {

@@ -15,6 +15,8 @@
     "express": "^4.19.2",
     "mongoose": "^8.4.0",
     "nodemon": "^3.1.0",
-    "pg": "^8.11.5"
+    "npm-readme-generator": "^1.0.0",
+    "pg": "^8.11.5",
+    "readme-md-generator": "^1.0.0"
   }
 }
