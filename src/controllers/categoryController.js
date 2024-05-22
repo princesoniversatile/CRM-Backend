@@ -52,7 +52,7 @@ const deleteCategory = async (req, res) => {
     await categoryModel.deleteCategory(id);
     res.status(204).json();
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete category' });
+    res.status(500).json({ error: error.message });
   }
 };
 
