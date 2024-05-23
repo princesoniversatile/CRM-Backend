@@ -11,8 +11,8 @@ const createProductTable = async () => {
       status VARCHAR(50) NOT NULL,
       CONSTRAINT fk_category
         FOREIGN KEY (category) REFERENCES categories(category_name)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
     );
   `;
 
