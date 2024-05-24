@@ -26,43 +26,39 @@ const createCustomerTable = async () => {
   }
 }
 
-const createCustomer = async (data) => {
+const createCustomer = async customer => {
   const {
-    full_name,
-    email_address,
-    phone_number,
+    fullName,
+    emailAddress,
+    phoneNumber,
     dob,
     country,
     state,
     city,
     address,
-    zip_code,
-    company,
-  } = data;
-
+    zipCode,
+    company
+  } = customer
   const query = `
-    INSERT INTO customers 
-    (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
+    INSERT INTO customers (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    RETURNING *;
-  `;
-
+    RETURNING *
+  `
   const values = [
-    full_name,
-    email_address,
-    phone_number,
+    fullName,
+    emailAddress,
+    phoneNumber,
     dob,
     country,
     state,
     city,
     address,
-    zip_code,
-    company,
-  ];
-
-  const result = await pool.query(query, values);
-  return result.rows[0];
-};
+    zipCode,
+    company
+  ]
+  const result = await pool.query(query, values)
+  return result.rows[0]
+}
 
 const getAllCustomers = async () => {
   const query = 'SELECT * FROM customers'
@@ -76,45 +72,41 @@ const getCustomerById = async id => {
   return result.rows[0]
 }
 
-const updateCustomer = async (id, data) => {
+const updateCustomer = async (id, customer) => {
   const {
-    full_name,
-    email_address,
-    phone_number,
+    fullName,
+    emailAddress,
+    phoneNumber,
     dob,
     country,
     state,
     city,
     address,
-    zip_code,
-    company,
-  } = data;
-
+    zipCode,
+    company
+  } = customer
   const query = `
-    UPDATE customers SET 
-    full_name = $1, email_address = $2, phone_number = $3, dob = $4, country = $5, state = $6,
-    city = $7, address = $8, zip_code = $9, company = $10
+    UPDATE customers
+    SET full_name = $1, email_address = $2, phone_number = $3, dob = $4, country = $5, state = $6, city = $7, address = $8, zip_code = $9, company = $10
     WHERE id = $11
-    RETURNING *;
-  `;
-
+    RETURNING *
+  `
   const values = [
-    full_name,
-    email_address,
-    phone_number,
+    fullName,
+    emailAddress,
+    phoneNumber,
     dob,
     country,
     state,
     city,
     address,
-    zip_code,
+    zipCode,
     company,
     id
-  ];
-
-  const result = await pool.query(query, values);
-  return result.rows[0];
-};
+  ]
+  const result = await pool.query(query, values)
+  return result.rows[0]
+}
 
 const deleteCustomer = async id => {
   const query = 'DELETE FROM customers WHERE id = $1'
