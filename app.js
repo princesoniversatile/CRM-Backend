@@ -1,8 +1,10 @@
 const express = require('express')
 const categoryRoutes = require('./src/routes/categoryRoutes')
+const offerRoutes = require('./src/routes/offerRoutes')
 const productRoutes = require('./src/routes/productRoutes')
 const customerRoutes = require('./src/routes/customerRoutes')
 const productModel = require('./src/models/productModel')
+const offerController = require('./src/controllers/offerController')
 const categoryModel = require('./src/models/categoryModel')
 const customerModel = require('./src/models/customerModel')
 const pool = require('./src/config/db')
@@ -18,6 +20,7 @@ app.use(cors())
 app.use('/', categoryRoutes)
 app.use('/', productRoutes)
 app.use('/', customerRoutes)
+app.use('/', offerRoutes)
 
 // Initialize the database table
 ;(async () => {
@@ -25,6 +28,9 @@ app.use('/', customerRoutes)
 })()
 ;(async () => {
   await productModel.createProductTable()
+})()
+;(async () => {
+  await offerController.createOfferTable()
 })()
 
 // Create customer table if not exists
@@ -50,7 +56,3 @@ app.use('/', customerRoutes)
     process.exit(1)
   }
 })()
-
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
