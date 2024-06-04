@@ -41,11 +41,11 @@ exports.getOfferById = async (req, res) => {
 
 // Create a new offer
 exports.createOffer = async (req, res) => {
-  const { name, description, startDate, endDate, type, amount } = req.body
+  const { name, description, start_date, end_date, type, amount } = req.body
   try {
     const result = await pool.query(
       'INSERT INTO offers (name, description, start_date, end_date, type, amount) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [name, description, startDate, endDate, type, amount]
+      [name, description, start_date, end_date, type, amount]
     )
     res.status(201).json(result.rows[0])
   } catch (error) {
@@ -55,11 +55,11 @@ exports.createOffer = async (req, res) => {
 
 // Update an offer by ID
 exports.updateOffer = async (req, res) => {
-  const { name, description, startDate, endDate, type, amount } = req.body
+  const { name, description, start_date, end_date, type, amount } = req.body
   try {
     const result = await pool.query(
       'UPDATE offers SET name = $1, description = $2, start_date = $3, end_date = $4, type = $5, amount = $6 WHERE id = $7 RETURNING *',
-      [name, description, startDate, endDate, type, amount, req.params.id]
+      [name, description, start_date, end_date, type, amount, req.params.id]
     )
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Offer not found' })
