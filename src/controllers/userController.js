@@ -1,5 +1,9 @@
 const pool = require('../config/db');
-const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand
+} = require('@aws-sdk/client-s3');
 const supabase = require('@supabase/supabase-js');
 
 const supabaseUrl = 'https://project_ref.supabase.co';
@@ -7,7 +11,10 @@ const supabaseAnonKey = 'anonKey';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
 const getSessionToken = async () => {
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
+  const {
+    data: { session },
+    error
+  } = await supabaseClient.auth.getSession();
   if (error) throw error;
   return session.access_token;
 };
@@ -22,8 +29,8 @@ const createS3Client = async () => {
     credentials: {
       accessKeyId: 'project_ref',
       secretAccessKey: 'anonKey',
-      sessionToken: sessionToken,
-    },
+      sessionToken: sessionToken
+    }
   });
 };
 
@@ -41,25 +48,50 @@ const createUserTable = () => {
             state VARCHAR(255),
             role VARCHAR(50),
             status BOOLEAN DEFAULT TRUE,
-            picture VARCHAR(255)
+            picture VARCHAR(255),
+            accessMenus JSONB[]
           );
     `;
 
-  pool
-    .query(query)
+  pool.query(query)
     .then(() => console.log('Users table created successfully'))
     .catch(err => console.error('Error creating users table', err));
 };
 
 const createUser = async (req, res) => {
-  const { email, password, first_name, last_name, phone_number, city, state, role, status, picture } = req.body;
-  const createdDate = new Date();
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    phone_number,
+    city,
+    state,
+    role,
+    status,
+    picture,
+    accessMenus
+  } = req.body;
+  const createdDate = new Date().toISOString(); // Automatically set the current date/time
 
   try {
     const result = await pool.query(
-      `INSERT INTO users (email, password, created_date, first_name, last_name, phone_number, city, state, role, status, picture)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
-      [email, password, createdDate, first_name, last_name, phone_number, city, state, role, status, picture]
+      `INSERT INTO users (email, password, created_date, first_name, last_name, phone_number, city, state, role, status, picture, accessMenus)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+      [
+        email,
+        password,
+        createdDate,
+        first_name,
+        last_name,
+        phone_number,
+        city,
+        state,
+        role,
+        status,
+        picture,
+        accessMenus
+      ]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -92,14 +124,40 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { email, password, first_name, last_name, phone_number, city, state, role, status, picture } = req.body;
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    phone_number,
+    city,
+    state,
+    role,
+    status,
+    picture,
+    accessMenus
+  } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE users
-      SET email = $1, password = $2, first_name = $3, last_name = $4, phone_number = $5, city = $6, state = $7, role = $8, status = $9, picture = $10
-      WHERE id = $11 RETURNING *`,
-      [email, password, first_name, last_name, phone_number, city, state, role, status, picture, id]
+      SET email = $1, password = $2, first_name = $3, last_name = $4, phone_number = $5, city = $6, state = $7, role = $8, status = $9, picture = $10,
+      accessMenus = $11
+      WHERE id = $12 RETURNING *`,
+      [
+        email,
+        password,
+        first_name,
+        last_name,
+        phone_number,
+        city,
+        state,
+        role,
+        status,
+        picture,
+        accessMenus,
+        id
+      ]
     );
 
     if (result.rows.length === 0) {
@@ -135,7 +193,7 @@ const uploadPicture = async (req, res) => {
       Bucket: 'your-bucket-name',
       Key: pictureName,
       Body: pictureBuffer,
-      ContentType: 'image/jpeg',
+      ContentType: 'image/jpeg'
     });
 
     await s3Client.send(putObjectCommand);
@@ -152,7 +210,7 @@ const deletePicture = async (req, res) => {
     const s3Client = await createS3Client();
     const deleteObjectCommand = new DeleteObjectCommand({
       Bucket: 'your-bucket-name',
-      Key: pictureName,
+      Key: pictureName
     });
 
     await s3Client.send(deleteObjectCommand);
@@ -170,5 +228,6 @@ module.exports = {
   updateUser,
   deleteUser,
   uploadPicture,
-  deletePicture,
+  deletePicture
 };
+

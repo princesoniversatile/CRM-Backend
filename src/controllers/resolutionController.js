@@ -3,6 +3,7 @@ const resolutionModel = require('../models/resolutionModels');
 const getAllResolutions = async (req, res) => {
   try {
     const resolutions = await resolutionModel.getAllResolutions();
+    console.log('Resolutions fetched:', resolutions); // Debugging
     res.status(200).json(resolutions);
   } catch (err) {
     console.error('Error fetching resolutions:', err);
@@ -13,6 +14,10 @@ const getAllResolutions = async (req, res) => {
 const getResolutionById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('Fetching resolution with ID:', id); // Debugging
+    if (!id) {
+      return res.status(400).json({ error: 'Resolution ID is required' });
+    }
     const resolution = await resolutionModel.getResolutionById(id);
     if (resolution) {
       res.status(200).json(resolution);
@@ -28,6 +33,7 @@ const getResolutionById = async (req, res) => {
 const createResolution = async (req, res) => {
   try {
     const { complaint_name, resolution_description, resolved_by, resolution_date, resolution_status } = req.body;
+    console.log('Creating resolution:', req.body); // Debugging
 
     const newResolution = await resolutionModel.createResolution({
       complaint_name,
@@ -47,6 +53,7 @@ const updateResolution = async (req, res) => {
   try {
     const { id } = req.params;
     const { complaint_name, resolution_description, resolved_by, resolution_date, resolution_status } = req.body;
+    console.log('Updating resolution with ID:', id, 'Data:', req.body); // Debugging
 
     const updatedResolution = await resolutionModel.updateResolution(id, {
       complaint_name,
@@ -70,6 +77,7 @@ const updateResolution = async (req, res) => {
 const deleteResolution = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('Deleting resolution with ID:', id); // Debugging
     await resolutionModel.deleteResolution(id);
     res.status(204).json();
   } catch (error) {

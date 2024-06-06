@@ -3,6 +3,7 @@ const categoryRoutes = require('./src/routes/categoryRoutes');
 const offerRoutes = require('./src/routes/offerRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 
 const complaintRoutes = require('./src/routes/complaintsRoutes');
@@ -30,6 +31,7 @@ app.get('/', (req, res) => {
 // Handle 404 for undefined routes
 
 // Routes
+app.use('/', authRoutes); // New route
 app.use('/', categoryRoutes);
 app.use('/', productRoutes);
 app.use('/', customerRoutes);

@@ -26,6 +26,45 @@ const createCustomerTable = async () => {
   }
 }
 
+// const createCustomer = async (data) => {
+//   const {
+//     full_name,
+//     email_address,
+//     phone_number,
+//     dob,
+//     country,
+//     state,
+//     city,
+//     address,
+//     zip_code,
+//     company,
+//   } = data;
+
+//   const query = `
+//     INSERT INTO customers 
+//     (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
+//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+//     RETURNING *;
+//   `;
+
+//   const values = [
+//     full_name,
+//     email_address,
+//     phone_number,
+//     dob,
+//     country,
+//     state,
+//     city,
+//     address,
+//     zip_code,
+//     company,
+//   ];
+
+//   const result = await pool.query(query, values);
+//   return result.rows[0];
+// };
+
+
 const createCustomer = async (data) => {
   const {
     full_name,
@@ -44,7 +83,7 @@ const createCustomer = async (data) => {
     INSERT INTO customers 
     (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    RETURNING *;
+    RETURNING id, full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company;
   `;
 
   const values = [
@@ -60,10 +99,18 @@ const createCustomer = async (data) => {
     company,
   ];
 
-  const result = await pool.query(query, values);
-  return result.rows[0];
+  try {
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (error) {
+    // Check if error is due to duplicate key violation
+    if (error.code === '23505') {
+      throw new Error('Customer with this email address already exists');
+    } else {
+      throw error;
+    }
+  }
 };
-
 const getAllCustomers = async () => {
   const query = 'SELECT * FROM customers'
   const result = await pool.query(query)
