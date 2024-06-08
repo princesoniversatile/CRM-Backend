@@ -316,66 +316,7 @@ const getUserById = async (req, res) => {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
-//{last}
-// const updateUser = async (req, res) => {
-//   const { id } = req.params;
-//   const {
-//     email,
-//     password,
-//     first_name,
-//     last_name,
-//     phone_number,
-//     city,
-//     state,
-//     role,
-//     status,
-//     picture,
-//     accessmenus
-//   } = req.body;
 
-//   try {
-//     const result = await pool.query(
-//       `UPDATE users
-//       SET email = $1,
-//           password = $2,
-//           first_name = $3,
-//           last_name = $4,
-//           phone_number = $5,
-//           city = $6,
-//           state = $7,
-//           role = $8,
-//           status = $9,
-//           picture = $10,
-//           accessmenus = $11
-//       WHERE id = $12
-//       RETURNING *`,
-//       [
-//         email,
-//         password,
-//         first_name,
-//         last_name,
-//         phone_number,
-//         city,
-//         state,
-//         role,
-//         status,
-//         picture,
-//         JSON.parse(accessmenus), // Convert accessmenus to JSON string
-//         id
-//       ]
-//     );
-
-//     // Check if any rows were updated
-//     if (result.rows.length === 0) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     // Return the updated user object
-//     res.status(200).json(result.rows[0]);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 const updateUser = async (req, res) => {
   const { id } = req.params;
   const {
@@ -392,89 +333,68 @@ const updateUser = async (req, res) => {
     accessmenus
   } = req.body;
 
-  const fieldsToUpdate = [];
-  const values = [];
-  let index = 1;
-
-  if (email) {
-    fieldsToUpdate.push(`email = $${index}`);
-    values.push(email);
-    index++;
-  }
-  if (password) {
-    fieldsToUpdate.push(`password = $${index}`);
-    values.push(password);
-    index++;
-  }
-  if (first_name) {
-    fieldsToUpdate.push(`first_name = $${index}`);
-    values.push(first_name);
-    index++;
-  }
-  if (last_name) {
-    fieldsToUpdate.push(`last_name = $${index}`);
-    values.push(last_name);
-    index++;
-  }
-  if (phone_number) {
-    fieldsToUpdate.push(`phone_number = $${index}`);
-    values.push(phone_number);
-    index++;
-  }
-  if (city) {
-    fieldsToUpdate.push(`city = $${index}`);
-    values.push(city);
-    index++;
-  }
-  if (state) {
-    fieldsToUpdate.push(`state = $${index}`);
-    values.push(state);
-    index++;
-  }
-  if (role) {
-    fieldsToUpdate.push(`role = $${index}`);
-    values.push(role);
-    index++;
-  }
-  if (status !== undefined) {
-    fieldsToUpdate.push(`status = $${index}`);
-    values.push(status);
-    index++;
-  }
-  if (picture) {
-    fieldsToUpdate.push(`picture = $${index}`);
-    values.push(picture);
-    index++;
-  }
-  if (accessmenus) {
-    fieldsToUpdate.push(`accessmenus = $${index}`);
-    values.push(JSON.parse(accessmenus));
-    index++;
-  }
-
-  values.push(id);
-
-  const query = `
-    UPDATE users
-    SET ${fieldsToUpdate.join(', ')}
-    WHERE id = $${index}
-    RETURNING *
-  `;
-
   try {
-    const result = await pool.query(query, values);
+    // Construct the update query dynamically based on provided fields
+    const updateFields = {
+      email,
+      password,
+      first_name,
+      last_name,
+      phone_number,
+      city,
+      state,
+      role,
+      status,
+      picture,
+      accessmenus // This should be correctly formatted as JSON
+    };
 
+    // Filter out undefined or null values from the updateFields
+    const filteredUpdateFields = Object.entries(updateFields).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    // If no valid fields are provided to update, return a bad request error
+    if (Object.keys(filteredUpdateFields).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    // Construct the set clause for the SQL query
+    const setClause = Object.keys(filteredUpdateFields)
+      .map((key, index) => {
+        if (key === 'accessmenus') {
+          return `${key} = $${index + 1}::jsonb`; // Ensure accessmenus is treated as JSONB
+        }
+        return `${key} = $${index + 1}`;
+      })
+      .join(', ');
+
+    // Construct the values array for the SQL query
+    const values = Object.values(filteredUpdateFields);
+    values.push(id); // Add id to the end of the values array
+
+    // Execute the update query
+    const result = await pool.query(
+      `UPDATE users
+      SET ${setClause}
+      WHERE id = $${values.length} RETURNING *`,
+      values
+    );
+
+    // Check if any rows were updated
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Return the updated user object
     res.status(200).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 
 const deleteUser = async (req, res) => {

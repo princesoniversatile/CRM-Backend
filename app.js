@@ -49,7 +49,7 @@ const initializeTables = async () => {
     await productModel.createProductTable();
     await offerController.createOfferTable();
     await customerModel.createCustomerTable();
-    await complaintModel.createComplaint();
+    // await complaintModel.createComplaint();
     await resolutionModel.createResolutionTable(); 
     await userController.createUserTable(); 
     await leadController.createLeadsTable()
