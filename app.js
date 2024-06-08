@@ -5,7 +5,7 @@ const productRoutes = require('./src/routes/productRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
-
+const leadController=require('./src/controllers/leadController')
 const complaintRoutes = require('./src/routes/complaintsRoutes');
 const resolutionRoutes = require('./src/routes/resolutionRoutes'); // New import
 const productModel = require('./src/models/productModel');
@@ -15,6 +15,7 @@ const categoryModel = require('./src/models/categoryModel');
 const customerModel = require('./src/models/customerModel');
 const complaintModel = require('./src/models/complaintsModels');
 const resolutionModel = require('./src/models/resolutionModels');
+const leadRoutes=require('./src/routes/leadRoutes');
 const pool = require('./src/config/db');
 const cors = require('cors');
 const app = express();
@@ -39,6 +40,7 @@ app.use('/', offerRoutes);
 app.use('/', complaintRoutes);
 app.use('/', resolutionRoutes); // New route
 app.use('/', userRoutes); // New route
+app.use('/', leadRoutes); // New route
 
 // Initialize the database tables
 const initializeTables = async () => {
@@ -47,9 +49,10 @@ const initializeTables = async () => {
     await productModel.createProductTable();
     await offerController.createOfferTable();
     await customerModel.createCustomerTable();
-    await complaintModel.createComplaintTable();
+    await complaintModel.createComplaint();
     await resolutionModel.createResolutionTable(); 
     await userController.createUserTable(); 
+    await leadController.createLeadsTable()
   } catch (err) {
     console.error('Error initializing tables:', err.message);
   }

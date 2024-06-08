@@ -49,7 +49,7 @@ const createUserTable = () => {
             role VARCHAR(50),
             status BOOLEAN DEFAULT TRUE,
             picture VARCHAR(255),
-            accessMenus JSONB[]
+            accessmenus JSONB[]
           );
     `;
 
@@ -70,13 +70,13 @@ const createUser = async (req, res) => {
     role,
     status,
     picture,
-    accessMenus
+    accessmenus
   } = req.body;
   const createdDate = new Date().toISOString(); // Automatically set the current date/time
 
   try {
     const result = await pool.query(
-      `INSERT INTO users (email, password, created_date, first_name, last_name, phone_number, city, state, role, status, picture, accessMenus)
+      `INSERT INTO users (email, password, created_date, first_name, last_name, phone_number, city, state, role, status, picture, accessmenus)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         email,
@@ -90,7 +90,7 @@ const createUser = async (req, res) => {
         role,
         status,
         picture,
-        accessMenus
+        accessmenus
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -122,6 +122,126 @@ const getUserById = async (req, res) => {
   }
 };
 
+// const updateUser = async (req, res) => {
+//   const { id } = req.params;
+//   const {
+//     email,
+//     password,
+//     first_name,
+//     last_name,
+//     phone_number,
+//     city,
+//     state,
+//     role,
+//     status,
+//     picture,
+//     accessmenus
+//   } = req.body;
+
+//   try {
+//     const result = await pool.query(
+//       `UPDATE users
+//       SET email = $1, password = $2, first_name = $3, last_name = $4, phone_number = $5, city = $6, state = $7, role = $8, status = $9, picture = $10,
+//       accessmenus = $11
+//       WHERE id = $12 RETURNING *`,
+//       [
+//         email,
+//         password,
+//         first_name,
+//         last_name,
+//         phone_number,
+//         city,
+//         state,
+//         role,
+//         status,
+//         picture,
+//         accessmenus,
+//         id
+//       ]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.status(200).json(result.rows[0]);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+// const updateUser = async (req, res) => {
+//   const { id } = req.params;
+//   const fields = req.body;
+
+//   if (!Object.keys(fields).length) {
+//     return res.status(400).json({ error: 'No fields to update' });
+//   }
+
+//   const setClause = Object.keys(fields)
+//     .map((key, index) => `${key} = $${index + 1}`)
+//     .join(', ');
+
+//   const values = Object.values(fields);
+//   values.push(id);
+
+//   try {
+//     const result = await pool.query(
+//       `UPDATE users SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+//       values
+//     );
+
+//     if (!result.rows.length) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.status(200).json(result.rows[0]);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+// const updateUser = async (req, res) => {
+//   const { id } = req.params;
+//   const fields = req.body;
+
+//   if (!Object.keys(fields).length) {
+//     return res.status(400).json({ error: 'No fields to update' });
+//   }
+
+//   // Ensure that the accessmenus field is handled correctly
+//   const updatedFields = { ...fields };
+//   if (updatedFields.accessmenus) {
+//     // PostgreSQL requires the entire array to be replaced, so convert to JSONB array
+//     updatedFields.accessmenus = JSON.stringify(updatedFields.accessmenus);
+//   }
+
+//   const setClause = Object.keys(updatedFields)
+//     .map((key, index) => `${key} = $${index + 1}`)
+//     .join(', ');
+
+//   const values = Object.values(updatedFields);
+//   values.push(id);
+
+//   try {
+//     const result = await pool.query(
+//       `UPDATE users SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+//       values
+//     );
+
+//     if (!result.rows.length) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.status(200).json(result.rows[0]);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
 const updateUser = async (req, res) => {
   const { id } = req.params;
   const {
@@ -135,35 +255,61 @@ const updateUser = async (req, res) => {
     role,
     status,
     picture,
-    accessMenus
+    accessmenus
   } = req.body;
 
   try {
+    // Construct the update query dynamically based on provided fields
+    const updateFields = {
+      email,
+      password,
+      first_name,
+      last_name,
+      phone_number,
+      city,
+      state,
+      role,
+      status,
+      picture,
+      accessmenus
+    };
+
+    // Filter out undefined or null values from the updateFields
+    const filteredUpdateFields = Object.entries(updateFields).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    // If no valid fields are provided to update, return a bad request error
+    if (Object.keys(filteredUpdateFields).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    // Construct the set clause for the SQL query
+    const setClause = Object.keys(filteredUpdateFields)
+      .map((key, index) => `${key} = $${index + 1}`)
+      .join(', ');
+
+    // Construct the values array for the SQL query
+    const values = Object.values(filteredUpdateFields);
+    values.push(id); // Add id to the end of the values array
+
+    // Execute the update query
     const result = await pool.query(
       `UPDATE users
-      SET email = $1, password = $2, first_name = $3, last_name = $4, phone_number = $5, city = $6, state = $7, role = $8, status = $9, picture = $10,
-      accessMenus = $11
-      WHERE id = $12 RETURNING *`,
-      [
-        email,
-        password,
-        first_name,
-        last_name,
-        phone_number,
-        city,
-        state,
-        role,
-        status,
-        picture,
-        accessMenus,
-        id
-      ]
+      SET ${setClause}
+      WHERE id = $${values.length} RETURNING *`,
+      values
     );
 
+    // Check if any rows were updated
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Return the updated user object
     res.status(200).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
