@@ -65,6 +65,52 @@ const createCustomerTable = async () => {
 // };
 
 
+// const createCustomer = async (data) => {
+//   const {
+//     full_name,
+//     email_address,
+//     phone_number,
+//     dob,
+//     country,
+//     state,
+//     city,
+//     address,
+//     zip_code,
+//     company,
+//   } = data;
+
+//   const query = `
+//     INSERT INTO customers 
+//     (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
+//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+//     RETURNING id, full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company;
+//   `;
+
+//   const values = [
+//     full_name,
+//     email_address,
+//     phone_number,
+//     dob,
+//     country,
+//     state,
+//     city,
+//     address,
+//     zip_code,
+//     company,
+//   ];
+
+//   try {
+//     const result = await pool.query(query, values);
+//     return result.rows[0];
+//   } catch (error) {
+//     // Check if error is due to duplicate key violation
+//     if (error.code === '23505') {
+//       throw new Error('Customer with this email address already exists');
+//     } else {
+//       throw error;
+//     }
+//   }
+// };
 const createCustomer = async (data) => {
   const {
     full_name,
@@ -81,9 +127,9 @@ const createCustomer = async (data) => {
 
   const query = `
     INSERT INTO customers 
-    (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    RETURNING id, full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company;
+    (full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company, created_date)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
+    RETURNING id, full_name, email_address, phone_number, dob, country, state, city, address, zip_code, company, created_date;
   `;
 
   const values = [
@@ -111,6 +157,7 @@ const createCustomer = async (data) => {
     }
   }
 };
+
 const getAllCustomers = async () => {
   const query = 'SELECT * FROM customers'
   const result = await pool.query(query)
