@@ -19,7 +19,7 @@ const loginUser = async (req, res) => {
       return res.status(403).json({ error: 'You are not authorized' })
     }
 
-    const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' })
+    const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '130m' })
     const userDetails = {
       id:user.id,
       email: user.email,
