@@ -53,7 +53,7 @@ const createLead = async (req, res) => {
   } = req.body
   try {
     const results = await pool.query(
-      'INSERT INTO leads (lead_name,lead_type, company_name, email, phone_number, follow_up, followup_description) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *',
+      'INSERT INTO leads (lead_name,lead_type, company_name, email, phone_number, follow_up, followup_description,lead_date) VALUES ($1, $2, $3, $4, $5, $6,$7,CURRENT_TIMESTAMP) RETURNING *',
       [
         lead_name,
         lead_type,
