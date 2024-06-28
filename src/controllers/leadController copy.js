@@ -11,8 +11,7 @@ const createLeadsTable = async (req, res) => {
             email TEXT NOT NULL,
             phone_number TEXT NOT NULL,
             follow_up DATE NOT NULL,
-            followup_description TEXT,
-            status TEXT NOT NULL DEFAULT 'active'
+            followup_description TEXT
         );
     `
   try {
@@ -50,12 +49,12 @@ const createLead = async (req, res) => {
     email,
     phone_number,
     follow_up,
-    followup_description,
-    status
+    followup_description
+    
   } = req.body
   try {
     const results = await pool.query(
-      'INSERT INTO leads (lead_name, lead_type, company_name, email, phone_number, follow_up, followup_description, status, lead_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP) RETURNING *',
+      'INSERT INTO leads (lead_name,lead_type, company_name, email, phone_number, follow_up, followup_description,lead_date) VALUES ($1, $2, $3, $4, $5, $6,$7,CURRENT_TIMESTAMP) RETURNING *',
       [
         lead_name,
         lead_type,
@@ -63,8 +62,7 @@ const createLead = async (req, res) => {
         email,
         phone_number,
         follow_up,
-        followup_description,
-        status
+        followup_description
       ]
     )
     res.status(201).json(results.rows[0])
@@ -82,12 +80,11 @@ const updateLead = async (req, res) => {
     email,
     phone_number,
     follow_up,
-    followup_description,
-    status
+    followup_description
   } = req.body
   try {
     const results = await pool.query(
-      'UPDATE leads SET lead_name = $1, company_name = $2, email = $3, phone_number = $4, follow_up = $5, followup_description = $6, lead_type = $7, status = $8 WHERE id = $9 RETURNING *',
+      'UPDATE leads SET lead_name = $1, company_name = $2, email = $3, phone_number = $4, follow_up = $5, followup_description = $6,lead_type=$7 WHERE id = $8 RETURNING *',
       [
         lead_name,
         company_name,
@@ -96,7 +93,6 @@ const updateLead = async (req, res) => {
         follow_up,
         followup_description,
         lead_type,
-        status,
         id
       ]
     )

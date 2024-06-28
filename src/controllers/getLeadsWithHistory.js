@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../config/db')
 
 const getLeadsWithHistory = async (req, res) => {
   try {
@@ -11,18 +11,19 @@ const getLeadsWithHistory = async (req, res) => {
         l.phone_number,
         l.lead_type,
         l.lead_date,
+        l.status,
         lh.date AS history_date,
         lh.next_followup_date,
         lh.remarks AS history_remarks
       FROM 
         leads l
       LEFT JOIN 
-        leads_history lh ON l.id = lh.lead_id
+        followup_history lh ON l.id = lh.lead_id
       ORDER BY 
         l.id, lh.date
-    `);
-    const leadsWithHistory = [];
-    let currentLead = null;
+    `)
+    const leadsWithHistory = []
+    let currentLead = null
 
     result.rows.forEach(row => {
       if (currentLead === null || currentLead.id !== row.id) {
@@ -34,9 +35,10 @@ const getLeadsWithHistory = async (req, res) => {
           phone_number: row.phone_number,
           lead_type: row.lead_type,
           lead_date: row.lead_date,
+          status: row.status,
           history: []
-        };
-        leadsWithHistory.push(currentLead);
+        }
+        leadsWithHistory.push(currentLead)
       }
 
       if (row.history_date) {
@@ -44,16 +46,16 @@ const getLeadsWithHistory = async (req, res) => {
           date: row.history_date,
           nextFollowUpDate: row.next_followup_date,
           remarks: row.history_remarks
-        });
+        })
       }
-    });
+    })
 
-    res.json(leadsWithHistory);
+    res.json(leadsWithHistory)
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message })
   }
-};
+}
 
 module.exports = {
-  getLeadsWithHistory,
-};
+  getLeadsWithHistory
+}

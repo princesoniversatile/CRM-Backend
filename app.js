@@ -10,6 +10,7 @@ const leadController=require('./src/controllers/leadController')
 const complaintRoutes = require('./src/routes/complaintsRoutes');
 const resolutionRoutes = require('./src/routes/resolutionRoutes'); // New import
 const combinedRoutes=require('./src/routes/combinedRoutes')
+const followupHistoryRoutes=require('./src/routes/followupHistoryRoutes')
 
 
 const productModel = require('./src/models/productModel');
@@ -48,6 +49,7 @@ app.use('/', userRoutes); // New route
 app.use('/', leadRoutes); // New route
 app.use('/', leadHistoryRoutes); // New route
 app.use('/', combinedRoutes); // New route
+app.use('/', followupHistoryRoutes); // New route
 
 // Initialize the database tables
 const initializeTables = async () => {
