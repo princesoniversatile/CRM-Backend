@@ -20,7 +20,7 @@ const getLeadsWithHistory = async (req, res) => {
       LEFT JOIN 
         followup_history lh ON l.id = lh.lead_id
       ORDER BY 
-        l.lead_date DESC
+        l.id, lh.date
     `)
     const leadsWithHistory = []
     let currentLead = null
